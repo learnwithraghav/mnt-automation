@@ -9,11 +9,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { messageId, tone } = body;
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
 
-  if (!messageId || !tone) {
-    return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+  }
+
+  const { messageId, tone } = body as {
+    messageId?: unknown;
+    tone?: unknown;
+  };
+
+  if (
+    typeof messageId !== "string" ||
+    !messageId.trim() ||
+    typeof tone !== "string" ||
+    !tone.trim()
+  ) {
+    return NextResponse.json({ error: "Missing or invalid parameters" }, { status: 400 });
   }
 
   const apiKey = process.env.OPENAI_API_KEY;
