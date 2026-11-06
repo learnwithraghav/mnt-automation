@@ -64,12 +64,19 @@ export async function POST(req: Request) {
     });
 
     const data = await response.json();
-    if (data.choices && data.choices[0]) {
-      generatedReply = data.choices[0].message.content.trim();
-    } else {
-      console.error("OpenRouter API Error:", data);
+
+    if (!response.ok) {
+      console.error("OpenRouter API request failed with status:", response.status);
+      return NextResponse.json({ error: "AI provider request failed" }, { status: 502 });
+    }
+
+    const replyContent = data?.choices?.[0]?.message?.content;
+    if (typeof replyContent !== "string" || !replyContent.trim()) {
+      console.error("OpenRouter API returned no reply content");
       throw new Error("Invalid response from AI");
     }
+
+    generatedReply = replyContent.trim();
   } catch (error) {
     console.error("AI Generation Error:", error);
     return NextResponse.json({ error: "Failed to generate AI reply" }, { status: 500 });
