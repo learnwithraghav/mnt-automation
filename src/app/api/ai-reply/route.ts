@@ -34,10 +34,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing or invalid parameters" }, { status: 400 });
   }
 
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY;
 
   if (!apiKey) {
-    return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 });
+    return NextResponse.json({ error: "OpenRouter API key not configured" }, { status: 500 });
   }
 
   let generatedReply = "";
